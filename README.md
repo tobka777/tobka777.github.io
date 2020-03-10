@@ -1,5 +1,6 @@
-# tobka777.github.io
+# DataVis 2020
 
-## DataVis 2020
+## Homeworks
 
-Homeworks
+- Homework 1:
+https://tobka777.github.io/hw/hw1/
