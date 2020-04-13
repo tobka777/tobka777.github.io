@@ -7,3 +7,6 @@
 
 - Homework 2:
 [https://tobka777.github.io/hw/hw2/](https://tobka777.github.io/hw/hw2/)
+
+- Homework 3:
+[https://tobka777.github.io/hw/hw2/](https://tobka777.github.io/hw/hw3/)
