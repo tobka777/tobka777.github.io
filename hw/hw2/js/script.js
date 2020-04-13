@@ -150,7 +150,6 @@ async function loadData() {
             region: d.region,
             population: {...d},
             ...Object.values(rest).map(v=>v.find(r=>r.geo===d.geo)).reduce((o, d, i)=>({...o, [Object.keys(rest)[i]]: d }), {})
-            
         }
     })
     return data
