@@ -26,9 +26,10 @@ const donut_lable = d3.select('.donut-chart').append('text')
 const tooltip = d3.select('.tooltip');
 //  Part 1 - Create simulation with forceCenter(), forceX() and forceCollide()
 const simulation = d3.forceSimulation()
-    //.force('charge', d3.forceManyBody().strength(charge))
+    //.force('charge', d3.forceManyBody())
+    
+    .force("x", d3.forceX().x(d => x(d['release year'])).strength(0.002))
     .force("center", d3.forceCenter(b_width / 2, b_height / 2))
-    .force("x", d3.forceX().strength(0.002))
     //.force('y', d3.forceY().strength(0.002).y(b_height / 2))
     .force("collide", d3.forceCollide().radius(d => d['user rating score'] + 0.5).iterations(2))
 
@@ -74,7 +75,7 @@ d3.csv('data/netflix.csv').then(data=>{
 
     function ticked() {
         nodes.attr('cx', d => x(d['release year']))
-             .attr('cy', d => 10)
+             //.attr('cy', d => 10)
     }
     /*.velocityDecay(0.2)
     .force("x", d3.forceX().strength(0.002))
