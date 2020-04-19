@@ -26,16 +26,13 @@ const donut_lable = d3.select('.donut-chart').append('text')
 const tooltip = d3.select('.tooltip');
 //  Part 1 - Create simulation with forceCenter(), forceX() and forceCollide()
 const simulation = d3.forceSimulation()
-    //.force('charge', d3.forceManyBody())
-    
-    .force("x", d3.forceX().x(d => x(d['release year'])).strength(0.002))
+    .force("x", d3.forceX(d => x(d['release year'])))
     .force("center", d3.forceCenter(b_width / 2, b_height / 2))
-    //.force('y', d3.forceY().strength(0.002).y(b_height / 2))
-    .force("collide", d3.forceCollide().radius(d => d['user rating score'] + 0.5).iterations(2))
+    .force("collide", d3.forceCollide(d => radius(d['user rating score']) + 1))
 
 d3.csv('data/netflix.csv').then(data=>{
     data = d3.nest().key(d=>d.title).rollup(d=>d[0]).entries(data).map(d=>d.value).filter(d=>d['user rating score']!=='NA');
-    
+
     const rating = data.map(d=>+d['user rating score']);
     const years = data.map(d=>+d['release year']);
     let ratings = d3.nest().key(d=>d.rating).rollup(d=>d.length).entries(data);
@@ -51,38 +48,18 @@ d3.csv('data/netflix.csv').then(data=>{
         .data(data)
         .enter()
         .append("circle")
-        //.attr('cx', d => x(+d['release year']))
         .attr('r', d => radius(+d['user rating score']))
         .style("fill", d => color(d.rating))
         .on('mouseover', overBubble)
         .on('mouseout', outOfBubble)
     
-    //nodes.enter().append("circle")
-        
-        //.attr("r", function(d){ return d['user rating score']});
-        // ..
-    // mouseover and mouseout event listeners
-            // .on('mouseover', overBubble)
-            // .on('mouseout', outOfBubble);
-
-    
     // Part 1 - add data to simulation and add tick event listener 
-    simulation.nodes(nodes).on("tick", ticked);
-
-    //.force("x", d3.forceX().strength(0.002))
-   
-    //.force("charge", d3.forceManyBody())
+    simulation.nodes(data).on("tick", ticked);
 
     function ticked() {
-        nodes.attr('cx', d => x(d['release year']))
-             //.attr('cy', d => 10)
+        nodes.attr("cx", function(d) { return d.x; })
+             .attr("cy", function(d) { return d.y; });
     }
-    /*.velocityDecay(0.2)
-    .force("x", d3.forceX().strength(0.002))
-    .force("y", d3.forceY().strength(0.002))
-    .force("collide", d3.forceCollide().radius(function(d) { return d.r + 0.5; }).iterations(2))
-    .on("tick", ticked);*/
-    // ..
 
     // Part 1 - create layout with d3.pie() based on rating
     var pie = d3.pie().value(function(d) { return d.value; });
@@ -115,9 +92,13 @@ d3.csv('data/netflix.csv').then(data=>{
         
         // Part 3 - updata tooltip content with title and year
         tooltip.html(d.title+" <br><span style='color: grey;'>"+d["release year"]+"</span>")
+        console.log(d)
 
         // Part 3 - change visibility and position of tooltip
-        tooltip.style("display", "inline").attr('cx', x(d['release year']))
+        var rad = radius(d['user rating score'])
+        tooltip.style("display", "inline")
+        .style("left", (rad+d.x)+'px')
+        .style("top", (rad+d.y)+'px')
     }
     function outOfBubble(){
         // Part 2 - remove stroke and stroke-width
