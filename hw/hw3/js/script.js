@@ -92,7 +92,6 @@ d3.csv('data/netflix.csv').then(data=>{
         
         // Part 3 - updata tooltip content with title and year
         tooltip.html(d.title+" <br><span style='color: grey;'>"+d["release year"]+"</span>")
-        console.log(d)
 
         // Part 3 - change visibility and position of tooltip
         var rad = radius(d['user rating score'])
