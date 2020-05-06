@@ -36,34 +36,32 @@
                 const noColor = '#CDCCCC'; // default country color
 
                 // TODO Part 1: here you can create a linear scale based on colors
-                //  const color = ...
+                const color = d3.scaleLinear().range(colors);
                 
                 // years array
                 const years = Object.keys(data[0][param]).map(d=>+d).filter(d=>d);
 
                 // TODO Part 2: here you can create х & y scales
-                // ...
-                //const x = d3.scaleBand(years, [0, width]).padding(.1);
-                // y = d3.scaleLinear().range([sliderHeight, 0]);
+                const x = d3.scaleBand(years, [0, width]).padding(.1);
+                const y = d3.scaleLinear().range([sliderHeight, 0]);
                 
                 // TODO Part 3: here you can create an svg inside #menu and add a legend
-                // ...
-                // const legend = d3.select('#menu').append('svg')
-                //     .attr('width', 200).attr("height", 40)
-                // let gradient = legend.append('defs')
-                //     .append("svg:linearGradient")
-                //         .attr("id", "gradient");
+                const legend = d3.select('#menu').append('svg')
+                    .attr('width', 200).attr("height", 40)
+                let gradient = legend.append('defs')
+                    .append("svg:linearGradient")
+                    .attr("id", "gradient");
 
-                // gradient.append('stop').attr('offset', '0%')
-                //     .style("stop-color", colors[0]);
-                // gradient.append('stop').attr('offset', '100%')
-                //     .style("stop-color", colors[1]);
+                gradient.append('stop').attr('offset', '0%')
+                    .style("stop-color", colors[0]);
+                gradient.append('stop').attr('offset', '100%')
+                    .style("stop-color", colors[1]);
 
-                // legend.append('rect')
-                //     .attr('width', 200).attr("height", 20)
-                //     .style("fill", "url(#gradient)");
+                legend.append('rect')
+                    .attr('width', 200).attr("height", 20)
+                    .style("fill", "url(#gradient)");
 
-                // const axis = legend.append('g').attr('id','axis').attr('transform', 'translate(0,20)');
+                const axis = legend.append('g').attr('id','axis').attr('transform', 'translate(0,20)');
 
                 // call update() when param changes
                 d3.selectAll('input[name="param"]').on('change',function(){
@@ -97,15 +95,20 @@
                 // adding a costume thumb
                 d3.select('g.slider').selectAll('line').remove();
                 d3.select('g.parameter-value path').attr('d', `M 0,0 V ${sliderHeight} H -${x.bandwidth()} V 0 Z`);
-
+    
                 // TODO Part 1: here you can create a projection d3.geoEquirectangular() and a geopath generator
-                // ...
+                const projection = d3.geoEquirectangular(); 
+                const path = d3.geoPath().projection(projection);
 
                 // TODO Part 1: here you can create a map
-                // const map = ...
-                
+                const map = svg.append('g').selectAll("path")
+                    .data(world.features)
+                    .enter()
+                    .append("path")
+                    .attr("d", path);
+
                 // TODO Part 1: add a mouse event listener to display country name inside #country
-                // ...
+                map.on('mouseover', d => d3.select('#country').text(d.properties.name));
 
                 // this function'll update both charts when any parameter changes
                 function update(){
@@ -113,27 +116,55 @@
                     d3.select('#year').text(year);
 
                     // update color scale domain
-                    //color.domain(d3.extent(data.map(d=>+d[param][year])));
+                    color.domain(d3.extent(data.map(d=>+d[param][year])));
 
                     // change country's colors
-                    // map.attr('fill', feature =>{
-                    //         // findin' a countrys data item
-                    //         let country = data.find(d=>d.geo === feature.id.toLowerCase());
-                    //         // TODO Part 1: fill country's path based on chosen param
-                    //         // ...
-                    //     });
+                    map.attr('fill', feature =>{
+                        // findin' a countrys data item
+                        let country = data.find(d=>d.geo === feature.id.toLowerCase());
+                        // TODO Part 1: fill country's path based on chosen param
+                        return country?color(country[param][year]):noColor;
+                    });
 
                     // make an array for barchart
                     let array = years.map(y=>d3.sum(data.map(d=>+d[param][y])));
+                    console.log(array)
+                    
                     // TODO Part 2: update y scale domain
-                    // ...
+                    x.domain(d3.keys(array));
+                    y.domain(d3.extent(array.map(d=>+d)));
 
                     // TODO Part 2: create and update barchart
-                    // ...
+                    const u = chart.selectAll('rect').data(array)
+                    u.enter()
+                        .append('rect')
+                        .merge(u)
+                        .transition()
+                        .duration(1000)
+                        .attr('width', (width / array.length))
+                        .attr('height', function(d){
+                            return height - y(d);
+                        })
+                        .attr('x', function(d,i){ return x(i); })
+                        .attr('y', function(d){ return y(d); })
+                        .attr('fill', 'steelblue')
 
                     
                     // TODO Part 3: update legend axis based on param 
-                    // ...
+                    var color2 = d3.scaleLinear()
+                        .range([0, 200])
+                        .domain(d3.extent(data.map(d=>+d[param][year])));
+                    var yAxis = d3.axisBottom()
+                        .scale(color2)
+                        .ticks(3);
+
+                    axis.call(yAxis)
+                        .append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0)
+                        .attr("dy", ".71em")
+                        .style("text-anchor", "end")
+                        .text("axis title");
                 }
                 // call update() for the first time
                 update();
