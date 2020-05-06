@@ -9,4 +9,7 @@
 [https://tobka777.github.io/hw/hw2/](https://tobka777.github.io/hw/hw2/)
 
 - Homework 3:
-[https://tobka777.github.io/hw/hw2/](https://tobka777.github.io/hw/hw3/)
+[https://tobka777.github.io/hw/hw3/](https://tobka777.github.io/hw/hw3/)
+
+- Homework 4:
+[https://tobka777.github.io/hw/hw4/](https://tobka777.github.io/hw/hw4/)
